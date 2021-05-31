@@ -2,7 +2,9 @@
   "name": "div_bar_chart",
   "version": "1.0.0",
   "description": "A basic library to draw bar charts using jQuery and div elements.",
-  "scripts": {},
+  "scripts": {
+    "start": "reload -b"
+  },
   "keywords": [
     "bar chart"
   ],
