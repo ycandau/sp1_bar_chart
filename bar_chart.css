@@ -1,0 +1,108 @@
+#wrapper {
+  display: grid;
+  background-color__: yellow;
+  width: 30em;
+  grid-template-columns: 2em 2em 0.5em repeat(2, 1fr 1em) 1fr 0.5em 5em;
+  grid-template-rows: 2em 10em 2em;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: yellow;
+}
+
+#chart-title {
+  grid-column: 1 / -1;
+  background-color: grey;
+}
+
+#y-axis-title {
+  grid-column: 1;
+  grid-row: 2 / 4;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+#y-axis-labels {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  grid-template-rows: repeat(5, 2em);
+  margin-top: 1em;
+}
+
+#gridlines {
+  grid-column: 3 / -2;
+  grid-row: 2;
+  background: repeating-linear-gradient(
+    to top,
+    grey 0,
+    grey 1px,
+    transparent 1px,
+    transparent 2em
+  );
+  z-index: 1;
+}
+
+#legend {
+  display: grid;
+  grid-column: -2;
+  grid-row: 2 / 4;
+  row-gap: 0.75em;
+  grid-template-rows: 1.5fr repeat(3, 1.25em) 1.5fr;
+  margin: 0em 1em;
+}
+
+.bar {
+  display: grid;
+  grid-row: 2;
+  z-index: 2;
+}
+
+.b1 {
+  grid-column: 4;
+}
+
+.b2 {
+  grid-column: 6;
+}
+
+.b3 {
+  grid-column: 8;
+}
+
+.bar.b1 {
+  grid-template-rows: 10fr 30fr 20fr 40fr;
+}
+
+.bar.b2 {
+  grid-template-rows: 50fr 30fr 20fr;
+}
+
+.bar.b3 {
+  grid-template-rows: 20fr 80fr;
+}
+
+.v1 {
+  background-color: magenta;
+}
+
+.v2 {
+  background-color: green;
+}
+
+.v3 {
+  background-color: cyan;
+}
+
+.label {
+  background-color: red;
+}
+
+#chart-title,
+#y-axis-title,
+#y-axis-labels div,
+#legend div,
+.bar div,
+.label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
