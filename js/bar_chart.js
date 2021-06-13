@@ -16,10 +16,10 @@ function drawBarChart(data, options, element) {
 // chart        [css]: width height font color background-color
 // title        text draw [css]: font color
 // yAxisTitle   text draw [css]: font color
-// yAxisLabels  draw [css]: font color
+// yAxisLabels  draw precision [css]: font color
 // gridlines    draw interval(top | center | bottom) color
 // bars         colors gaps
-// values       draw position [css]: font color
+// values       draw position precision [css]: font color
 // legend       text draw [css]: font color
 // xAxisLabels  text draw [css]: font color ff8
 
@@ -251,7 +251,7 @@ function drawValues(bar, barIndex, barValues, data, settings) {
       const value = appendDiv(bar, setting, { classes, css })
       // Only post value if enough space
       if (setting.draw && value.height() > setting.minHeight)
-        value.text(v.toFixed(0))
+        value.text(v.toFixed(setting.precision))
     })
 }
 
@@ -275,29 +275,36 @@ function drawBars(chart, data, settings) {
 // Draw the Y axis labels
 
 function drawYAxisLabels(chart, data, settings) {
-  if (settings.yAxisLabels.draw) {
-    // Draw first to get dimensions
-    const labels = appendDiv(chart, settings.yAxisLabels)
+  const setting = settings.yAxisLabels
+  if (setting.draw) {
+    // Use placeholder, because labels will have absolute position
+    const placeholder = appendDiv(chart, setting)
 
-    const height = labels.height()
+    // Calculate computed properties
+    const height = placeholder.height()
     const interval = Math.round(
       height * (settings.gridlines.interval / data.max)
     )
     const count = Math.floor(height / interval) + 1
-    const shift = (0.5 - count) * interval + height
     const grid_template_rows = `repeat(${count}, ${interval}px)`
-    const css = {
-      position: 'absolute',
-      'grid-template-rows': grid_template_rows,
-      top: `${shift}px`,
-    }
-    labels.css(css)
+    const css = { 'grid-template-rows': grid_template_rows }
 
+    // Create labels but postpone absolute position
+    const labels = appendDiv(chart, setting, { css })
+
+    // Create children
     for (let i = 0; i < count; i++) {
       const classes = 'middle center'
-      const text = ((count - i - 1) * settings.gridlines.interval).toFixed(0)
+      const text = ((count - i - 1) * settings.gridlines.interval).toFixed(
+        setting.precision
+      )
       appendDiv(labels, { classes, text })
     }
+
+    // Use placeholder for spacing, then set absolute position
+    const shift = (0.45 - count) * interval + height
+    placeholder.css({ width: labels.width() })
+    labels.css({ position: 'absolute', top: `${shift}px` })
   }
 }
 
@@ -422,12 +429,14 @@ const defaults = {
   },
   yAxisLabels: {
     draw: true,
-    width: '[y-labels-start] 2em',
-    class: 'yAxisLabels',
+    precision: 0,
+    width: '[y-labels-start] auto',
+    classes: 'yAxisLabels',
     css: {
       display: 'grid',
       'grid-column': 'y-labels-start',
       'grid-row': 'bars-start',
+      padding: '0 0.5em',
     },
   },
   bars: {
@@ -445,6 +454,7 @@ const defaults = {
   values: {
     draw: true,
     position: 'center',
+    precision: 1,
     minHeight: 20,
     css: {
       padding: '2px 0',
@@ -515,7 +525,8 @@ const translationPattern = {
   direct: [
     { ids: ['gridlines'], props: ['interval', 'color'] },
     { ids: ['bars'], props: ['colors', 'gaps'] },
-    { ids: ['values'], props: ['position'] },
+    { ids: ['values'], props: ['position', 'precision'] },
+    { ids: ['yAxisLabels'], props: ['precision'] },
     { ids: ['yAxisLabels', 'gridlines', 'values'], props: ['draw'] },
     {
       ids: ['title', 'yAxisTitle', 'legend', 'xAxisLabels'],
