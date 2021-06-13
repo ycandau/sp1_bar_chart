@@ -245,13 +245,15 @@ function drawValues(bar, barIndex, barValues, data, settings) {
   barValues
     .slice(0, -1) // slice off the remainder value
     .forEach((v, subBarIndex) => {
-      const color = `color${data.is2D ? subBarIndex : barIndex}`
-      const classes = `${setting.position} middle ${color}`
-      const css = { 'grid-row': data.subBarCount + 1 - subBarIndex }
-      const value = appendDiv(bar, setting, { classes, css })
-      // Only post value if enough space
-      if (setting.draw && value.height() > setting.minHeight)
-        value.text(v.toFixed(setting.precision))
+      if (v !== 0) {
+        const color = `color${data.is2D ? subBarIndex : barIndex}`
+        const classes = `${setting.position} middle ${color}`
+        const css = { 'grid-row': data.subBarCount + 1 - subBarIndex }
+        const value = appendDiv(bar, setting, { classes, css })
+        // Only post value if enough space
+        if (setting.draw && value.height() > setting.minHeight)
+          value.text(v.toFixed(setting.precision))
+      }
     })
 }
 
