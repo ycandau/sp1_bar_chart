@@ -1,7 +1,7 @@
 {
-  "name": "div_bar_chart",
-  "version": "1.0.0",
-  "description": "A basic library to draw bar charts using jQuery and div elements.",
+  "name": "stretch-project-1",
+  "version": "0.0.0",
+  "description": "A basic function to draw bar charts, using jQuery and a css grid of div elements.",
   "scripts": {
     "start": "reload -b"
   },
@@ -9,5 +9,8 @@
     "bar chart"
   ],
   "author": "Yves Candau",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.28.0"
+  }
 }
