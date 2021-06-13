@@ -1,3 +1,28 @@
+/**
+ * Draw a bar chart inside an html element.
+ *
+ * @param {Array<number> | Array<Array<number>>} data
+ * @param {Object<string, number | string} options
+ * @param {jQuery} element
+ */
+
+function drawBarChart(data, options, element) {
+  const settings = processOptions(options, defaults, translationPattern)
+  const processedData = processData(data)
+  drawChart(element, processedData, settings)
+  applyClasses(processedData, settings)
+}
+
+// chart        [css]: width height font color background-color
+// title        text draw [css]: font color
+// yAxisTitle   text draw [css]: font color
+// yAxisLabels  draw [css]: font color
+// gridlines    draw interval(top | center | bottom) color
+// bars         colors gaps
+// values       draw position [css]: font color
+// legend       text draw [css]: font color
+// xAxisLabels  text draw [css]: font color ff8
+
 //------------------------------------------------------------------------------
 // Helper functions for arrays
 
@@ -349,59 +374,7 @@ function applyClasses(data, settings) {
 }
 
 //------------------------------------------------------------------------------
-// Main function
-
-function drawBarChart(data, options, element) {
-  const settings = processOptions(options, defaults, translationPattern)
-  const processedData = processData(data)
-  drawChart(element, processedData, settings)
-  applyClasses(processedData, settings)
-}
-
-//------------------------------------------------------------------------------
-// Data and settings
-
-const test2D = true
-
-const data = test2D
-  ? [
-      [5, 2, 3, 4],
-      [3, 4, 1.9, 2.2],
-      [0, 2, 4],
-    ]
-  : [5, 2, 10, 4.1]
-
-// chart        [css]: width height font color background-color
-// title        text draw [css]: font color
-// yAxisTitle   text draw [css]: font color
-// yAxisLabels  draw [css]: font color
-// gridlines    draw interval(top | center | bottom) color
-// bars         colors gaps
-// values       draw position [css]: font color
-// legend       text draw [css]: font color
-// xAxisLabels  text draw [css]: font color ff8
-
-const options = {
-  'chart.width': '500px',
-  'chart.height': '300px',
-  'chart.color': '#ff8',
-  'chart.background-color': 'black',
-  'chart.font-family': 'Verdana',
-  'title.text': 'Fruit production',
-  'yAxisTitle.text': 'Millions kg',
-  'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],
-  'xAxisLabels.text': ['ON', 'QC', 'BC', 'AB'],
-  'bars.gaps': ['0.25fr', '0.5fr', '0.25fr'],
-  'bars.colors': ['#fb09', '#f809', '#f409', '#f809'],
-  'values.position': 'center',
-  'title.draw': true,
-  'yAxisTitle.draw': true,
-  'yAxisLabels.draw': true,
-  'gridlines.draw': true,
-  'values.draw': true,
-  'legend.draw': true,
-  'xAxisLabels.draw': true,
-}
+// Defaults and settings
 
 const defaults = {
   chart: {
@@ -495,7 +468,7 @@ const defaults = {
   },
   xAxisLabels: {
     draw: true,
-    height: '2em',
+    height: '1.75em',
     classes: 'middle bottom',
     text: ['A', 'B', 'C', 'D'],
     css: {
@@ -517,7 +490,7 @@ const defaults = {
     },
     top: {
       display: 'flex',
-      'align-items': 'start',
+      'align-items': 'flex-start',
     },
     center: {
       display: 'flex',
@@ -525,7 +498,7 @@ const defaults = {
     },
     bottom: {
       display: 'flex',
-      'align-items': 'end',
+      'align-items': 'flex-end',
     },
   },
 }

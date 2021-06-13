@@ -19,7 +19,32 @@
 
   <div id="element"></div>
   <script>
-    drawBarChart(data, options, $('#element'))
+    const data1D = [5, 2, 10, 4.1]
+    const data2D = [
+      [5, 2, 3, 4],
+      [3, 4, 1.9, 2.2],
+      [0, 2, 4],
+    ]
+
+    const options = {
+      'chart.width': '500px',
+      'chart.height': '300px',
+      'chart.color': '#ff8',
+      'chart.background-color': 'black',
+      'chart.font-family': 'Verdana',
+      'title.text': 'Fruit production per province',
+      'yAxisTitle.text': 'Production (millions kg)',
+      'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],
+      'xAxisLabels.text': ['ON', 'QC', 'BC', 'AB'],
+      'bars.gaps': ['0.25fr', '0.5fr', '0.25fr'],
+      'bars.colors': ['#fb09', '#f809', '#f409', '#f809'],
+      'values.position': 'center',
+      'gridlines.interval': 3
+    }
+
+    $(() => {
+      drawBarChart(data2D, options, $('#element'))
+    })
   </script>
 </body>
 
