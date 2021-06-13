@@ -92,26 +92,6 @@ const mergeObjects =
     }, firstObject)
   }
 
-const mergeProps = mergeObjects({
-  classes: (a, b) => a + ' ' + b,
-  text: (a, b) => b,
-  css: (a, b) => ({ ...a, ...b }),
-})
-
-//------------------------------------------------------------------------------
-// Helper function to create a DIV node in the DOM
-
-function appendDiv(parent, id, ...props) {
-  const parent_obj = typeof parent === 'string' ? $('#' + parent) : parent
-  const merged = mergeProps({ css: {} }, ...props)
-  return $('<div></div>')
-    .appendTo(parent_obj)
-    .attr('id', id)
-    .addClass(merged.classes)
-    .css(merged.css)
-    .text(merged.text)
-}
-
 //------------------------------------------------------------------------------
 // Process the options
 
@@ -175,6 +155,27 @@ function processData(data) {
 }
 
 //------------------------------------------------------------------------------
+// Helper function to merge settings
+
+const mergeSettings = mergeObjects({
+  classes: (a, b) => a + ' ' + b,
+  text: (a, b) => b,
+  css: (a, b) => ({ ...a, ...b }),
+})
+
+//------------------------------------------------------------------------------
+// Helper function to create a DIV node in the DOM
+
+function appendDiv(parent, ...props) {
+  const merged = mergeSettings({ css: {} }, ...props) // css property not empty
+  return $('<div></div>')
+    .appendTo(parent)
+    .addClass(merged.classes)
+    .css(merged.css)
+    .text(merged.text)
+}
+
+//------------------------------------------------------------------------------
 // Draw the chart
 
 function barsGridTemplate(data, settings) {
@@ -211,51 +212,50 @@ function drawChart(element, data, settings) {
     'grid-template-columns': grid_template_columns,
     'grid-template-rows': grid_template_rows,
   }
-  appendDiv(element, 'chart', settings.chart, { css })
+  const chart = appendDiv(element, settings.chart, { css })
 
-  drawTitle(settings)
-  drawYAxisTitle(settings)
-  drawBars(data, settings)
-  drawYAxisLabels(data, settings)
-  drawGridlines(data, settings)
-  drawLegend(data, settings)
-  drawXAxisLabels(data, settings)
+  drawTitle(chart, settings)
+  drawYAxisTitle(chart, settings)
+  drawBars(chart, data, settings)
+  drawYAxisLabels(chart, data, settings)
+  drawGridlines(chart, data, settings)
+  drawLegend(chart, data, settings)
+  drawXAxisLabels(chart, data, settings)
 }
 
 //------------------------------------------------------------------------------
 // Draw the chart title
 
-function drawTitle(settings) {
-  if (settings.title.draw) appendDiv('chart', 'title', settings.title)
+function drawTitle(chart, settings) {
+  if (settings.title.draw) appendDiv(chart, settings.title)
 }
 
 //------------------------------------------------------------------------------
 // Draw the Y axis title
 
-function drawYAxisTitle(settings) {
-  if (settings.yAxisTitle.draw)
-    appendDiv('chart', 'yAxisTitle', settings.yAxisTitle)
+function drawYAxisTitle(chart, settings) {
+  if (settings.yAxisTitle.draw) appendDiv(chart, settings.yAxisTitle)
 }
 
 //------------------------------------------------------------------------------
 // Draw the bars
 
-function drawValues(barIndex, barValues, data, settings) {
-  const values = settings.values
+function drawValues(bar, barIndex, barValues, data, settings) {
+  const setting = settings.values
   barValues
     .slice(0, -1) // slice off the remainder value
     .forEach((v, subBarIndex) => {
-      const parent = 'bar' + barIndex
       const color = `color${data.is2D ? subBarIndex : barIndex}`
-      const classes = `${values.position} middle ${color}`
+      const classes = `${setting.position} middle ${color}`
       const css = { 'grid-row': data.subBarCount + 1 - subBarIndex }
-      const bar = appendDiv(parent, '', values, { classes, css })
+      const value = appendDiv(bar, setting, { classes, css })
       // Only post value if enough space
-      if (values.draw && bar.height() > values.minHeight) bar.text(v.toFixed(0))
+      if (setting.draw && value.height() > setting.minHeight)
+        value.text(v.toFixed(0))
     })
 }
 
-function drawBars(data, settings) {
+function drawBars(chart, data, settings) {
   data.values.forEach((barValues, index) => {
     const grid_template_rows = barValues
       .slice() // copy because reverse() mutates the array
@@ -266,17 +266,20 @@ function drawBars(data, settings) {
       'grid-column': `bars-start ${index + 1}`,
       'grid-template-rows': grid_template_rows,
     }
-    appendDiv('chart', 'bar' + index, settings.bars, { css })
-    drawValues(index, barValues, data, settings)
+    const bar = appendDiv(chart, settings.bars, { css })
+    drawValues(bar, index, barValues, data, settings)
   })
 }
 
 //------------------------------------------------------------------------------
 // Draw the Y axis labels
 
-function drawYAxisLabels(data, settings) {
+function drawYAxisLabels(chart, data, settings) {
   if (settings.yAxisLabels.draw) {
-    const height = $('#bar0').height()
+    // Draw first to get dimensions
+    const labels = appendDiv(chart, settings.yAxisLabels)
+
+    const height = labels.height()
     const interval = Math.round(
       height * (settings.gridlines.interval / data.max)
     )
@@ -284,15 +287,16 @@ function drawYAxisLabels(data, settings) {
     const shift = (0.5 - count) * interval + height
     const grid_template_rows = `repeat(${count}, ${interval}px)`
     const css = {
+      position: 'absolute',
       'grid-template-rows': grid_template_rows,
       top: `${shift}px`,
     }
-    appendDiv('chart', 'yAxisLabels', settings.yAxisLabels, { css })
+    labels.css(css)
 
     for (let i = 0; i < count; i++) {
       const classes = 'middle center'
       const text = ((count - i - 1) * settings.gridlines.interval).toFixed(0)
-      appendDiv('yAxisLabels', '', { classes, text })
+      appendDiv(labels, { classes, text })
     }
   }
 }
@@ -300,43 +304,44 @@ function drawYAxisLabels(data, settings) {
 //------------------------------------------------------------------------------
 // Draw the gridlines
 
-function drawGridlines(data, settings) {
-  const gridlines = settings.gridlines
-  if (gridlines.draw) {
-    const height = $('#bar0').height()
-    const distGridlines = Math.round(height * (gridlines.interval / data.max))
-    const color = gridlines.color
+function drawGridlines(chart, data, settings) {
+  const setting = settings.gridlines
+  if (setting.draw) {
+    const gridline = appendDiv(chart, settings.gridlines)
+    const height = gridline.height()
+    const interval = Math.round(height * (setting.interval / data.max))
+    const color = setting.color
 
     // Issue: Rounded pixel height causes cumulative error.
     // But decimal height causes occasionally thicker gridlines.
     const css = {
       background:
         `repeating-linear-gradient(to top, ${color} 0, ${color} 1px, ` +
-        `transparent 1px, transparent ${distGridlines}px)`,
+        `transparent 1px, transparent ${interval}px)`,
     }
-    appendDiv('chart', 'gridlines', settings.gridlines, { css })
+    gridline.css(css)
   }
 }
 
 //------------------------------------------------------------------------------
 // Draw the legend
 
-function drawLegend(data, settings) {
-  const legend = settings.legend
-  if (legend.draw && data.is2D) {
+function drawLegend(chart, data, settings) {
+  const setting = settings.legend
+  if (setting.draw && data.is2D) {
     const count = data.subBarCount
     const css = { 'grid-template-rows': `1fr repeat(${count}, 1.4em) 1fr` }
     const text = '' // reserve text for children
-    appendDiv('chart', 'legend', settings.legend, { css, text })
+    const legend = appendDiv(chart, settings.legend, { css, text })
 
     for (let i = 0; i < count; i++) {
       const classes = `middle center color${i}`
-      const text = legend.text[i]
+      const text = setting.text[i]
       const css = {
         padding: '0.1em 0.5em',
         'grid-row': `${count + 1 - i}`,
       }
-      appendDiv('legend', '', { classes, text, css })
+      appendDiv(legend, { classes, text, css })
     }
   }
 }
@@ -344,13 +349,13 @@ function drawLegend(data, settings) {
 //------------------------------------------------------------------------------
 // Draw the X axis labels
 
-function drawXAxisLabels(data, settings) {
-  const labels = settings.xAxisLabels
-  if (labels.draw) {
+function drawXAxisLabels(chart, data, settings) {
+  const setting = settings.xAxisLabels
+  if (setting.draw) {
     data.values.forEach((val, index) => {
-      const text = labels.text[index]
+      const text = setting.text[index]
       const css = { 'grid-column': `bars-start ${index + 1}` }
-      appendDiv('chart', 'label' + index, labels, { css, text })
+      appendDiv(chart, setting, { css, text })
     })
   }
 }
@@ -379,6 +384,7 @@ function applyClasses(data, settings) {
 const defaults = {
   chart: {
     draw: true,
+    classes: 'chart',
     css: {
       width: '500px',
       height: '300px',
@@ -394,8 +400,8 @@ const defaults = {
   title: {
     draw: true,
     height: '3em',
-    classes: 'middle top',
     text: 'Chart title',
+    classes: 'title middle top',
     css: {
       'font-size': '140%',
       'grid-column': '1 / -1',
@@ -405,7 +411,7 @@ const defaults = {
   yAxisTitle: {
     draw: true,
     width: '2.5em',
-    classes: 'middle top',
+    classes: 'yAxisTitle middle top',
     text: 'Y axis title',
     css: {
       'writing-mode': 'vertical-rl',
@@ -417,9 +423,8 @@ const defaults = {
   yAxisLabels: {
     draw: true,
     width: '[y-labels-start] 2em',
+    class: 'yAxisLabels',
     css: {
-      width: '2em',
-      position: 'absolute',
       display: 'grid',
       'grid-column': 'y-labels-start',
       'grid-row': 'bars-start',
@@ -430,6 +435,7 @@ const defaults = {
     height: '[bars-start] 1fr',
     gaps: ['0.25fr', '0.5fr', '0.25fr'],
     colors: ['#fb09', '#f809', '#f409', '#f809'],
+    classes: 'bar',
     css: {
       display: 'grid',
       'grid-row': 'bars-start',
@@ -448,6 +454,7 @@ const defaults = {
     draw: true,
     interval: 2.4,
     color: '#fff6',
+    classes: 'gridlines',
     css: {
       'grid-column': 'gridlines-start / gridlines-end',
       'grid-row': 'bars-start',
@@ -457,6 +464,7 @@ const defaults = {
   legend: {
     draw: true,
     width: 'auto',
+    classes: 'legend',
     text: ['V1', 'V2', 'V3', 'V4'],
     css: {
       padding: '0 0em 0 2em',
@@ -469,7 +477,7 @@ const defaults = {
   xAxisLabels: {
     draw: true,
     height: '1.75em',
-    classes: 'middle bottom',
+    classes: 'label middle bottom',
     text: ['A', 'B', 'C', 'D'],
     css: {
       'grid-row': '-2',
