@@ -45,8 +45,8 @@
 
     <h3 id="options">Options</h3>
     <p>
-      Both previous charts use the same options. Switching between single or
-      stacked bars is determined by the structure of the data.
+      Switching between single or stacked bars is determined by the structure of
+      the data. Both previous charts use the same options.
     </p>
     <p class="code">
       options = {<br />
@@ -67,15 +67,31 @@
       &nbsp;&nbsp;'gridlines.interval': 3<br />
       }<br />
     </p>
+
+    <p>
+      Options can be set using compact dotted keys as above, or with nested
+      objects:
+    </p>
+    <p class="code">
+      options = {<br />
+      &nbsp;&nbsp;chart: {<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;width: '500px',<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;height: '300px',<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;color: '#ff8',<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;'background-color': 'black',<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;'font-family': 'Verdana',<br />
+      &nbsp;&nbsp;}<br />
+      }<br />
+    </p>
     <hr />
 
     <h3 id="draw">Choosing which components to display</h3>
     <p>
-      The various components of the chart can be toggled to be displayed or not.
-      The bars adjust their width automatically depending on the available
+      The various components of the chart can be toggled to display or not. The
+      bars adjust their width automatically depending on the amount of available
       horizontal space. The values inside the bars are only displayed if the
-      corresponding height is sufficient (see the third value in the second bar
-      below).
+      corresponding height is sufficient. See for instance how the third value
+      in the second bar below is skipped.
     </p>
     <div id="element3"></div>
     <p class="code">
@@ -89,13 +105,15 @@
 
     <h3 id="gaps">Setting the spacing between and around the bars</h3>
     <p>
-      The horizontal space between and to the left and right of the bars can be
-      set to proportional values (relative to a width of
-      <span class="code">1fr</span> for the bars):
+      The horizontal space between and around the bars can be set with an array
+      of three strings for
+      <span class="code">[ 'left', 'in between', 'right' ]</span>. That spacing
+      can be proportional, relative to a width of
+      <span class="code">'1fr'</span> for the bars):
     </p>
     <p class="code">'bars.gaps': ['0.5fr', '0.8fr', '0.5fr']<br /></p>
 
-    <p>or fixed values using any standard CSS units:</p>
+    <p>Or fixed values can be used, with any standard CSS units:</p>
     <p class="code">'bars.gaps': ['10px', '20px', '10px']<br /></p>
     <p>&nbsp;</p>
 
