@@ -51,7 +51,7 @@ const data2D = [
 ]
 ```
 
-Create an object holding the options for the bar chart (see below for more):
+Create an object holding the options for the bar chart (see [below](#options) for more):
 
 ```javascript
 const options = {
@@ -113,7 +113,7 @@ const data2D = [
 ]
 ```
 
-![Simple bar chart](./media/stacked_bar_chart.png)
+![Stacked bar chart](./media/stacked_bar_chart.png)
 
 Options can be set using compact dotted keys:
 
@@ -139,6 +139,20 @@ const options = {
   ...
 }
 ```
+
+The various components of the chart can be toggled to display or not. The bars adjust their width automatically depending on the amount of available horizontal space. The values inside the bars are only displayed if the corresponding height is sufficient. See for instance how the third value in the second bar below is skipped.
+
+```javascript
+const options = {
+  ...
+  'yAxisTitle.draw': false,
+  'yAxisLabels.draw': false,
+  'legend.draw': false,
+  ...
+}
+```
+
+![Bar chart with less components](./media/bar_chart_with_less_components.png)
 
 ---
 
@@ -185,14 +199,14 @@ const options = {
 <br/>
 Further notes on specific options:
 
-| Option      | Notes                                                                                                                                                                                                   |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `text`      | To set text content, either a string, or an array of strings.                                                                                                                                           |
-| `draw`      | To display the component or not.                                                                                                                                                                        |
-| `font`      | Includes `font`, `font-style`, `font-weight`, `font-size`, `font-family`.                                                                                                                               |
-| `precision` | The decimal precision with which to display numbers.                                                                                                                                                    |
-| `interval`  | The interval between two gridlines.                                                                                                                                                                     |
-| `gaps`      | An array defining the horizontal space left, in between, and to the right of the bars. These can be fixed CSS dimensions, or proportional dimensions such as `0.5fr`, relative to a bar width of `1fr`. |
+| Option      | Notes                                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `text`      | To set text content, either a string, or an array of strings.                                                                                                                                                             |
+| `draw`      | To display the component or not.                                                                                                                                                                                          |
+| `font`      | Includes `font`, `font-style`, `font-weight`, `font-size`, `font-family`.                                                                                                                                                 |
+| `precision` | The decimal precision with which to display numbers.                                                                                                                                                                      |
+| `interval`  | The interval between two gridlines.                                                                                                                                                                                       |
+| `gaps`      | An array of three strings to define the horizontal space left, in between, and to the right of the bars. These can be fixed CSS dimensions, or proportional dimensions such as `0.5fr`, relative to a bar width of `1fr`. |
 
 ---
 
