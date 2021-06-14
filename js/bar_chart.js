@@ -2,15 +2,18 @@
  * Draw a bar chart inside an html element.
  *
  * @param {Array<number> | Array<Array<number>>} data
- * @param {Object<string, number | string} options
- * @param {jQuery} element
+ * @param {Object<string, number | string>} options
+ * @param {jQuery} The parent element for the chart
+ *
+ * @returns The DOM element containing the chart
  */
 
 function drawBarChart(data, options, element) {
   const settings = processOptions(options, defaults, translationPattern)
   const processedData = processData(data)
-  drawChart(element, processedData, settings)
+  const chart = drawChart(element, processedData, settings)
   applyClasses(processedData, settings)
+  return chart
 }
 
 //==============================================================================
@@ -193,6 +196,8 @@ function drawChart(element, data, settings) {
   drawGridlines(chart, data, settings)
   drawLegend(chart, data, settings)
   drawXAxisLabels(chart, data, settings)
+
+  return chart
 }
 
 //------------------------------------------------------------------------------
@@ -438,7 +443,7 @@ const defaults = {
   },
   gridlines: {
     draw: true,
-    interval: 2.4,
+    interval: 5,
     color: '#fff6',
     classes: 'gridlines',
     css: {
