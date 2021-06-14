@@ -62,7 +62,7 @@ function processOptions(options, defaults, pattern) {
 //   - Compute relevant calculations.
 //   - All data arrays are turned to 2D and padded to the maximum sub-length.
 //   - The difference to the maximum total value is pushed to later create
-//     an empty div at the top of ecah bar.
+//     an empty div at the top of each bar.
 
 function processData(data) {
   // Turn 1D arrays to 2D
