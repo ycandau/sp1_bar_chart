@@ -13,87 +13,14 @@ function drawBarChart(data, options, element) {
   applyClasses(processedData, settings)
 }
 
-// chart        [css]: width height font color background-color
-// title        text draw [css]: font color
-// yAxisTitle   text draw [css]: font color
-// yAxisLabels  draw precision [css]: font color
-// gridlines    draw interval(top | center | bottom) color
-// bars         colors gaps
-// values       draw position precision [css]: font color
-// legend       text draw [css]: font color
-// xAxisLabels  text draw [css]: font color ff8
-
-//------------------------------------------------------------------------------
-// Helper functions for arrays
-
-function collapseArray(array, func, init) {
-  return array.map((arr) => {
-    return arr.reduce(func, init)
-  })
-}
-
-const toSum = [(acc, elem) => acc + elem, 0]
-const toMax = [(acc, elem) => Math.max(acc, elem), -Infinity]
-const toMaxLength = [(acc, elem) => Math.max(acc, elem.length), 0]
-
-const padArray = function (array, value, paddedLength) {
-  for (let i = array.length; i < paddedLength; i++) array.push(value)
-}
-
-//------------------------------------------------------------------------------
-// Helper functions for objects
-
-function isObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]'
-}
-
-function mergeBranch(path, value, obj) {
-  const keys = path.reverse()
-  let sub = obj
-  let key = keys.pop()
-
-  // Advance until key not found or value not an object
-  while (key in sub && isObject(sub[key])) {
-    sub = sub[key]
-    key = keys.pop()
-  }
-
-  // Then build branch backwards and attach
-  sub[key] = keys.reduce((branch, key) => {
-    return { [key]: branch }
-  }, value)
-  return obj
-}
-
-function expandObject(options) {
-  return Object.entries(options).reduce((expanded, entry) => {
-    const [key, value] = [...entry]
-    mergeBranch(key.split('.'), value, expanded)
-    return expanded
-  }, {})
-}
-
-const mergeObjects =
-  (pattern) =>
-  (firstObject, ...objects) => {
-    return objects.reduce((accum, obj) => {
-      return Object.keys(pattern).reduce((merged, key) => {
-        if (accum[key] !== undefined && obj[key] !== undefined) {
-          // Merge according to pattern when both defined
-          merged[key] = pattern[key](accum[key], obj[key])
-        } else if (accum[key] !== undefined) {
-          // Otherwise keep one or the other
-          merged[key] = accum[key]
-        } else if (obj[key] !== undefined) {
-          merged[key] = obj[key]
-        }
-        return merged
-      }, {})
-    }, firstObject)
-  }
-
-//------------------------------------------------------------------------------
+//==============================================================================
 // Process the options
+//
+//   - User options are expanded from compact dotted keys to nested objects.
+//   - Then validated and formatted based on a const `translationPattern`.
+//   - CSS properties are enclosed into sub-objects.
+//   - Non-CSS properties are directly attached.
+//   - The resulting object is merged into a set of defaults.
 
 function getOptionType(pattern, id, prop) {
   for (const type in pattern) {
@@ -120,12 +47,19 @@ function validateOptions(options, pattern) {
 }
 
 function processOptions(options, defaults, pattern) {
-  const validated = validateOptions(expandObject(options), pattern)
+  const expanded = expandObject(options)
+  const validated = validateOptions(expanded, pattern)
   return $.extend(true, {}, defaults, validated)
 }
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // Process the data
+//
+//   - Check if the array is 1D or 2D.
+//   - Compute relevant calculations.
+//   - All data arrays are turned to 2D and padded to the maximum sub-length.
+//   - The difference to the maximum total value is pushed to later create
+//     an empty div at the top of ecah bar.
 
 function processData(data) {
   // Turn 1D arrays to 2D
@@ -154,20 +88,20 @@ function processData(data) {
   }
 }
 
-//------------------------------------------------------------------------------
-// Helper function to merge settings
+//==============================================================================
+// Draw the chart
+//
+//   - Create div elements and then call functions to create children elements.
+//   - Most static properties are pulled from the `settings` object.
+//   - Computed properties are calculated as needed and passed forward.
+//   - The layout relies on nested CSS grids.
+//   - A helper function is used to create the div elements.
 
-const mergeSettings = mergeObjects({
-  classes: (a, b) => a + ' ' + b,
-  text: (a, b) => b,
-  css: (a, b) => ({ ...a, ...b }),
-})
-
 //------------------------------------------------------------------------------
-// Helper function to create a DIV node in the DOM
+// Helper function to append a div element to a parent
 
 function appendDiv(parent, ...props) {
-  const merged = mergeSettings({ css: {} }, ...props) // css property not empty
+  const merged = mergeSettings({ css: {} }, ...props)
   return $('<div></div>')
     .appendTo(parent)
     .addClass(merged.classes)
@@ -176,7 +110,42 @@ function appendDiv(parent, ...props) {
 }
 
 //------------------------------------------------------------------------------
-// Draw the chart
+// General helper function to merge objects based on a provided pattern
+
+function mergeObjects(pattern) {
+  return (firstObject, ...objects) => {
+    return objects.reduce((accum, obj) => {
+      return Object.keys(pattern).reduce((merged, key) => {
+        if (accum[key] !== undefined && obj[key] !== undefined) {
+          // Merge according to pattern when both defined
+          merged[key] = pattern[key](accum[key], obj[key])
+        } else if (accum[key] !== undefined) {
+          // Otherwise keep one or the other
+          merged[key] = accum[key]
+        } else if (obj[key] !== undefined) {
+          merged[key] = obj[key]
+        }
+        return merged
+      }, {})
+    }, firstObject)
+  }
+}
+
+//------------------------------------------------------------------------------
+// Helper function to merge settings based on specific rules
+//
+//   - Strings for classes are joined with a space.
+//   - Strings for content are replaced.
+//   - CSS objects are merged (using destructuring assignment).
+
+const mergeSettings = mergeObjects({
+  classes: (a, b) => a + ' ' + b,
+  text: (a, b) => b,
+  css: (a, b) => ({ ...a, ...b }),
+})
+
+//------------------------------------------------------------------------------
+// Compute grid layout properties
 
 function barsGridTemplate(data, settings) {
   const cnt = data.barCount
@@ -195,6 +164,9 @@ function chartGridTemplate(settings, ids, direction) {
     .map((id) => settings[id][direction])
     .join(' ')
 }
+
+//------------------------------------------------------------------------------
+// Draw the chart
 
 function drawChart(element, data, settings) {
   settings.bars.width = barsGridTemplate(data, settings) // mutates
@@ -369,8 +341,8 @@ function drawXAxisLabels(chart, data, settings) {
   }
 }
 
-//------------------------------------------------------------------------------
-// Apply css to classes
+//==============================================================================
+// Apply CSS properties to classes
 
 function applyClasses(data, settings) {
   // Generic classes for positioning
@@ -387,8 +359,8 @@ function applyClasses(data, settings) {
   }
 }
 
-//------------------------------------------------------------------------------
-// Defaults and settings
+//==============================================================================
+// Default and static settings
 
 const defaults = {
   chart: {
@@ -408,25 +380,27 @@ const defaults = {
   },
   title: {
     draw: true,
-    height: '3em',
+    height: 'auto',
     text: 'Chart title',
     classes: 'title middle top',
     css: {
-      'font-size': '140%',
+      'font-size': '130%',
       'grid-column': '1 / -1',
       'grid-row': '1',
+      'padding-bottom': '1em',
     },
   },
   yAxisTitle: {
     draw: true,
-    width: '2.5em',
-    classes: 'yAxisTitle middle top',
+    width: 'auto',
+    classes: 'yAxisTitle middle center',
     text: 'Y axis title',
     css: {
       'writing-mode': 'vertical-rl',
       transform: 'rotate(180deg)',
-      'grid-column': '1',
+      'grid-column': '1 / 2',
       'grid-row': 'bars-start / -1',
+      'padding-left': '1em',
     },
   },
   yAxisLabels: {
@@ -523,6 +497,9 @@ const defaults = {
   },
 }
 
+//==============================================================================
+// Pattern used to validate and format the options
+
 const translationPattern = {
   direct: [
     { ids: ['gridlines'], props: ['interval', 'color'] },
@@ -557,4 +534,74 @@ const translationPattern = {
       ],
     },
   ],
+}
+
+//==============================================================================
+// General helper functions for arrays
+
+//------------------------------------------------------------------------------
+// Collapse an array of arrays based on a reducing function
+
+function collapseArray(array, func, init) {
+  return array.map((subArray) => {
+    return subArray.reduce(func, init)
+  })
+}
+
+//------------------------------------------------------------------------------
+// Sets of reducing functions with initial values
+
+const toSum = [(acc, elem) => acc + elem, 0]
+const toMax = [(acc, elem) => Math.max(acc, elem), -Infinity]
+const toMaxLength = [(acc, elem) => Math.max(acc, elem.length), 0]
+
+//------------------------------------------------------------------------------
+// Pad an array with a value, up to a given length
+
+const padArray = function (array, value, paddedLength) {
+  for (let i = array.length; i < paddedLength; i++) array.push(value)
+}
+
+//==============================================================================
+// General helper functions for objects
+
+//------------------------------------------------------------------------------
+// Predicate to test if a variable is an object
+
+function isObject(obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]'
+}
+
+//------------------------------------------------------------------------------
+// Merge a single branch into an object
+
+function mergeBranch(path, value, obj) {
+  const keys = path.reverse()
+  let sub = obj
+  let key = keys.pop()
+
+  // Advance until key not found or value not an object
+  while (key in sub && isObject(sub[key])) {
+    sub = sub[key]
+    key = keys.pop()
+  }
+
+  // Then build branch backwards and attach
+  sub[key] = keys.reduce((branch, key) => {
+    return { [key]: branch }
+  }, value)
+  return obj
+}
+
+//------------------------------------------------------------------------------
+// Expand dotted keys to nested objects
+//
+// Only processes keys at a depth of 1.
+
+function expandObject(options) {
+  return Object.entries(options).reduce((expanded, entry) => {
+    const [key, value] = [...entry]
+    mergeBranch(key.split('.'), value, expanded)
+    return expanded
+  }, {})
 }
