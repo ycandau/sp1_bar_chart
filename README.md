@@ -10,6 +10,8 @@
 - [Future features](#future-features)
 - [Resources](#resources)
 
+See the function in use on [Github Pages](https://ycandau.github.io/sp1_bar_chart/).
+
 ---
 
 ## About
