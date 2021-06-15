@@ -47,9 +47,9 @@ Create a one dimensional or two dimensional array of values:
 const data1D = [5.2, 1.3, 10.9, 4.1]
 
 const data2D = [
-  [5, 2, 3, 4],
-  [3, 4, 1.5, 2.2],
-  [0, 2, 4],
+  [5.2, 2.4, 1.1, 4.7],
+  [3.5, 4.3, 1.5, 2.9],
+  [0, 2.7, 4.8],
 ]
 ```
 
@@ -109,9 +109,9 @@ const data1D = [5.2, 1.3, 10.9, 4.1]
 
 ```javascript
 const data2D = [
-  [5, 2, 3, 4],
-  [3, 4, 1.5, 2.2],
-  [0, 2, 4],
+  [5.2, 2.4, 1.1, 4.7],
+  [3.5, 4.3, 1.5, 2.9],
+  [0, 2.7, 4.8],
 ]
 ```
 
@@ -123,8 +123,21 @@ Options can be set using compact dotted keys:
 const options = {
   'chart.width': '500px',
   'chart.height': '300px',
-  'chart.color': '#ff8',
-  ...
+  'chart.color': '#f8ea8c',
+  'chart.background-color': 'black',
+  'chart.font-family': 'Verdana',
+  'title.text': 'Fruit production per province',
+  'yAxisTitle.text': 'Production (millions kg)',
+  'yAxisLabels.precision': 0,
+  'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],
+  'xAxisLabels.text': ['ON', 'QC', 'BC', 'AB'],
+  'bars.gaps': ['0.25fr', '0.5fr', '0.25fr'],
+  'bars.colors': ['#955196', '#dd5182', '#ff6e54', '#ffa600'],
+  'values.position': 'center',
+  'values.precision': 1,
+  'values.color': 'black',
+  'legend.color': 'black',
+  'gridlines.interval': 5,
 }
 ```
 
@@ -135,7 +148,7 @@ const options = {
   chart: {
     width: '500px',
     height: '300px',
-    color: '#ff8',
+    color: '#f8ea8c',
     ...
   }
   ...
@@ -147,9 +160,12 @@ The various components of the chart can be toggled to display or not. The bars a
 ```javascript
 const options = {
   ...
+  'title.draw': false,
   'yAxisTitle.draw': false,
   'yAxisLabels.draw': false,
+  'xAxisLabels.draw': false,
   'legend.draw': false,
+  'gridlines.draw': false,
   ...
 }
 ```
