@@ -9,7 +9,7 @@
  */
 
 function drawBarChart(data, options, element) {
-  const settings = processOptions(options, defaults, translationPattern)
+  const settings = processOptions(options, defaults, validProperties)
   const processedData = processData(data)
   const chart = drawChart(element, processedData, settings)
   applyClasses(processedData, settings)
@@ -20,7 +20,7 @@ function drawBarChart(data, options, element) {
 // Process the options
 //
 //   - User options are expanded from compact dotted keys to nested objects.
-//   - Then validated and formatted based on a const `translationPattern`.
+//   - Then validated and formatted based on the constant `validProperties`.
 //   - CSS properties are enclosed into sub-objects.
 //   - Non-CSS properties are directly attached.
 //   - The resulting object is merged into a set of defaults.
@@ -40,9 +40,9 @@ function validateOptions(options, pattern) {
     for (const prop in options[id]) {
       const type = getOptionType(pattern, id, prop)
       if (type === 'direct') {
-        mergeBranch([id, prop], options[id][prop], translated)
+        mergeBranch(translated, [id, prop, options[id][prop]])
       } else if (type === 'css') {
-        mergeBranch([id, 'css', prop], options[id][prop], translated)
+        mergeBranch(translated, [id, 'css', prop, options[id][prop]])
       }
     }
   }
@@ -160,11 +160,13 @@ function barsGridTemplate(data, settings) {
   )
 }
 
-function chartGridTemplate(settings, ids, direction) {
-  // Concatenate grid template from an array of elements
+function chartGridTemplate(settings, ids, direction, computed) {
+  const copied = copyFromObject(settings, ids, ['draw', direction])
+  const merged = mergeBranch(copied, computed)
+  // Concatenate grid template
   return ids
-    .filter((id) => settings[id].draw)
-    .map((id) => settings[id][direction])
+    .filter((id) => merged[id].draw)
+    .map((id) => merged[id][direction])
     .join(' ')
 }
 
@@ -172,11 +174,12 @@ function chartGridTemplate(settings, ids, direction) {
 // Draw the chart
 
 function drawChart(element, data, settings) {
-  settings.bars.width = barsGridTemplate(data, settings) // mutates
+  const computed = ['bars', 'width', barsGridTemplate(data, settings)]
   const grid_template_columns = chartGridTemplate(
     settings,
     ['yAxisTitle', 'yAxisLabels', 'bars', 'legend'],
-    'width'
+    'width',
+    computed
   )
   const grid_template_rows = chartGridTemplate(
     settings,
@@ -302,7 +305,7 @@ function drawGridlines(chart, data, settings) {
     // But decimal height causes occasionally thicker gridlines.
     const css = {
       background:
-        `repeating-linear-gradient(to top, ${color} 0, ${color} 1px, ` +
+        `repeating-linear-gradient(to top, ${color} 0, ${color} 1.1px, ` +
         `transparent 1px, transparent ${interval}px)`,
     }
     gridline.css(css)
@@ -505,7 +508,7 @@ const defaults = {
 //==============================================================================
 // Pattern used to validate and format the options
 
-const translationPattern = {
+const validProperties = {
   direct: [
     { ids: ['gridlines'], props: ['interval', 'color'] },
     { ids: ['bars'], props: ['colors', 'gaps'] },
@@ -580,8 +583,10 @@ function isObject(obj) {
 //------------------------------------------------------------------------------
 // Merge a single branch into an object
 
-function mergeBranch(path, value, obj) {
-  const keys = path.reverse()
+function mergeBranch(obj, branch) {
+  if (branch === undefined || branch.length === 0) return obj
+  const keys = branch.slice().reverse()
+  const value = keys.shift()
   let sub = obj
   let key = keys.pop()
 
@@ -599,6 +604,19 @@ function mergeBranch(path, value, obj) {
 }
 
 //------------------------------------------------------------------------------
+// Copy a set of keys and properties from an object
+
+function copyFromObject(source, keys, props) {
+  return keys.reduce((output, key) => {
+    output[key] = props.reduce((sub, prop) => {
+      if (prop in source[key]) sub[prop] = source[key][prop]
+      return sub
+    }, {})
+    return output
+  }, {})
+}
+
+//------------------------------------------------------------------------------
 // Expand dotted keys to nested objects
 //
 // Only processes keys at a depth of 1.
@@ -606,7 +624,7 @@ function mergeBranch(path, value, obj) {
 function expandObject(options) {
   return Object.entries(options).reduce((expanded, entry) => {
     const [key, value] = [...entry]
-    mergeBranch(key.split('.'), value, expanded)
+    mergeBranch(expanded, [...key.split('.'), value])
     return expanded
   }, {})
 }
