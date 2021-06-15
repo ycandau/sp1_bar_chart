@@ -35,13 +35,13 @@
 
     <h3 id="simple">Simple bar chart for single values</h3>
     <div id="element1D"></div>
-    <p class="code">data = [ 5.2, 1.3, 10.9, 4.1 ]</p>
+    <p class="code">data = [5.2, 1.3, 10.9, 4.1]</p>
     <hr />
 
     <h3 id="stacked">Stacked bar chart for multiple values</h3>
     <div id="element2D"></div>
     <p class="code">
-      data = [ [ 5, 2, 3, 4 ], [ 3, 4, 1.5, 2.2 ], [ 0, 2, 4 ] ]
+      data = [[5.2, 2.4, 1.1, 4.7], [3.5, 4.3, 1.5, 2.9], [0, 2.7, 4.8]]
     </p>
     <hr />
 
@@ -54,19 +54,22 @@
       options = {<br />
       &nbsp;&nbsp;'chart.width': '500px',<br />
       &nbsp;&nbsp;'chart.height': '300px',<br />
-      &nbsp;&nbsp;'chart.color': '#ff8',<br />
+      &nbsp;&nbsp;'chart.color': '#f8ea8c',<br />
       &nbsp;&nbsp;'chart.background-color': 'black',<br />
       &nbsp;&nbsp;'chart.font-family': 'Verdana',<br />
       &nbsp;&nbsp;'title.text': 'Fruit production per province',<br />
       &nbsp;&nbsp;'yAxisTitle.text': 'Production (millions kg)',<br />
       &nbsp;&nbsp;'yAxisLabels.precision': 0,<br />
-      &nbsp;&nbsp;'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],<br />
       &nbsp;&nbsp;'xAxisLabels.text': ['ON', 'QC', 'BC', 'AB'],<br />
+      &nbsp;&nbsp;'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],<br />
+      &nbsp;&nbsp;'legend.color': 'black',<br />
       &nbsp;&nbsp;'bars.gaps': ['0.25fr', '0.5fr', '0.25fr'],<br />
-      &nbsp;&nbsp;'bars.colors': ['#fb09', '#f809', '#f409', '#f809'],<br />
+      &nbsp;&nbsp;'bars.colors': ['#955196', '#dd5182', '#ff6e54',
+      '#ffa600'],<br />
       &nbsp;&nbsp;'values.position': 'center',<br />
       &nbsp;&nbsp;'values.precision': 1,<br />
-      &nbsp;&nbsp;'gridlines.interval': 3<br />
+      &nbsp;&nbsp;'values.color': 'black',<br />
+      &nbsp;&nbsp;'gridlines.interval': 5<br />
       }<br />
     </p>
 
@@ -79,7 +82,7 @@
       &nbsp;&nbsp;chart: {<br />
       &nbsp;&nbsp;&nbsp;&nbsp;width: '500px',<br />
       &nbsp;&nbsp;&nbsp;&nbsp;height: '300px',<br />
-      &nbsp;&nbsp;&nbsp;&nbsp;color: '#ff8',<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;color: '#f8ea8c',<br />
       &nbsp;&nbsp;&nbsp;&nbsp;'background-color': 'black',<br />
       &nbsp;&nbsp;&nbsp;&nbsp;'font-family': 'Verdana',<br />
       &nbsp;&nbsp;}<br />
@@ -93,14 +96,17 @@
       bars adjust their width automatically depending on the amount of available
       horizontal space. The values inside the bars are only displayed if the
       corresponding height is sufficient. See for instance how the third value
-      in the second bar below is skipped.
+      in the first bar below is skipped.
     </p>
     <div id="element3"></div>
     <p class="code">
       options = {<br />
+      &nbsp;&nbsp;'title.draw': false,<br />
       &nbsp;&nbsp;'yAxisTitle.draw': false,<br />
       &nbsp;&nbsp;'yAxisLabels.draw': false,<br />
+      &nbsp;&nbsp;'xAxisLabels.draw': false,<br />
       &nbsp;&nbsp;'legend.draw': false,<br />
+      &nbsp;&nbsp;'gridlines.draw': false,<br />
       }
     </p>
     <hr />
@@ -109,7 +115,7 @@
     <p>
       The horizontal space between and around the bars can be set with an array
       of three strings for
-      <span class="code">[ 'left', 'in between', 'right' ]</span>. That spacing
+      <span class="code">['left', 'in between', 'right']</span>. That spacing
       can be proportional, relative to a width of
       <span class="code">'1fr'</span> for the bars):
     </p>
@@ -123,15 +129,15 @@
       const data1D = [5.2, 1.3, 10.9, 4.1]
 
       const data2D = [
-        [5, 2, 3, 4],
-        [3, 4, 1.5, 2.2],
-        [0, 2, 4],
+        [5.2, 2.4, 1.1, 4.7],
+        [3.5, 4.3, 1.5, 2.9],
+        [0, 2.7, 4.8],
       ]
 
       const options1 = {
         'chart.width': '500px',
         'chart.height': '300px',
-        'chart.color': '#ff8',
+        'chart.color': '#f8ea8c',
         'chart.background-color': 'black',
         'chart.font-family': 'Verdana',
         'title.text': 'Fruit production per province',
@@ -140,17 +146,21 @@
         'legend.text': ['Apples', 'Pears', 'Prunes', 'Berries'],
         'xAxisLabels.text': ['ON', 'QC', 'BC', 'AB'],
         'bars.gaps': ['0.25fr', '0.5fr', '0.25fr'],
-        'bars.colors': ['#fb09', '#f809', '#f409', '#f809'],
+        'bars.colors': ['#955196', '#dd5182', '#ff6e54', '#ffa600'],
         'values.position': 'center',
         'values.precision': 1,
-        'gridlines.interval': 3,
+        'values.color': 'black',
+        'legend.color': 'black',
+        'gridlines.interval': 5,
       }
 
       const draw_to_false = {
+        'title.draw': false,
         'yAxisTitle.draw': false,
         'yAxisLabels.draw': false,
+        'xAxisLabels.draw': false,
         'legend.draw': false,
-        'bars.gaps': ['0.5fr', '0.8fr', '0.5fr'],
+        'gridlines.draw': false,
       }
       const options2 = $.extend(true, {}, options1, draw_to_false)
 
