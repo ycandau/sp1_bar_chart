@@ -155,7 +155,7 @@ const options = {
 }
 ```
 
-The various components of the chart can be toggled to display or not. The bars adjust their width automatically depending on the amount of available horizontal space. The values inside the bars are only displayed if the corresponding height is sufficient. See for instance how the third value in the second bar below is skipped.
+The various components of the chart can be toggled to display or not. The bars adjust their width automatically depending on the amount of available horizontal space. The values inside the bars are only displayed if the corresponding height is sufficient. See for instance how the third value in the first bar below is skipped.
 
 ```javascript
 const options = {
